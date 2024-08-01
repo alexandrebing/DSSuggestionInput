@@ -11,12 +11,14 @@ import UIKit
 class DSSuggestionListTableView: UITableView {
     
     var dataList: [String]
-    var filteredDataList: [String] = []
+    var filteredDomains: [String] = []
     var didSelectItem: ((String) -> Void)?
+    var namePart: String = ""
     
     init(dataList: [String], frame: CGRect = .zero, style: UITableView.Style = .plain) {
         self.dataList = dataList
         super.init(frame: frame, style: style)
+        self.setupTableView()
     }
     
     required init?(coder: NSCoder) {
@@ -24,43 +26,52 @@ class DSSuggestionListTableView: UITableView {
     }
     
     private func setupTableView() {
+        
         self.delegate = self
         self.dataSource = self
+        
+        self.isScrollEnabled = false
+        self.backgroundColor = .clear
+        self.isHidden = true
+        self.layer.cornerRadius = 5.0
+        
         self.register(UITableViewCell.self, forCellReuseIdentifier: "CustomCell")
         
-        // Adiciona sombra na base da UITableView
         self.layer.shadowColor = UIColor.black.cgColor
-        self.layer.shadowOpacity = 0.8
-        self.layer.shadowOffset = CGSize(width: 0, height: 5)
-        self.layer.shadowRadius = 10
+        self.layer.shadowOpacity = 0.3
+        self.layer.shadowOffset = CGSize(width: 0, height: 3)
+        self.layer.shadowRadius = 3
         self.layer.masksToBounds = false
     }
     
-    // Método para filtrar domínios com base no texto
-    func filterDomains(for text: String) {
+    public func filterDomains(for text: String) {
         guard let range = text.range(of: "@") else {
-            filteredDataList = []
+            filteredDomains = []
+            self.isHidden = true
             return
         }
         
         let domainPart = String(text[range.upperBound...])
-        filteredDataList = dataList.filter { $0.hasPrefix(domainPart) }
-        self.updateTableViewHeight()
+        self.namePart = String(text[...range.lowerBound])
+        filteredDomains = dataList.filter { $0.hasPrefix(domainPart) }
+        
         self.reloadData()
-    }
-    
-    func showTableView() {
-        self.isHidden = filteredDataList.isEmpty
+        self.isHidden = filteredDomains.isEmpty
         updateTableViewHeight()
     }
     
-    func hideTableView() {
+    public func showTableView() {
+        self.isHidden = filteredDomains.isEmpty
+        updateTableViewHeight()
+    }
+    
+    public func hideTableView() {
         self.isHidden = true
     }
     
     private func updateTableViewHeight() {
         let rowHeight: CGFloat = 44.0
-        let totalHeight = rowHeight * CGFloat(filteredDataList.count)
+        let totalHeight = rowHeight * CGFloat(filteredDomains.count)
         
         self.constraints.forEach { constraint in
             if constraint.firstAttribute == .height {
@@ -69,25 +80,25 @@ class DSSuggestionListTableView: UITableView {
         }
         
         self.heightAnchor.constraint(equalToConstant: totalHeight).isActive = true
-        
-        DispatchQueue.main.async {
-            self.layer.shadowPath = UIBezierPath(rect: self.bounds).cgPath
-        }
     }
 }
 
 extension DSSuggestionListTableView: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredDataList.count
+        return filteredDomains.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CustomCell", for: indexPath)
-        cell.textLabel?.text = filteredDataList[indexPath.row]
+        cell.textLabel?.text = "\(namePart)\(filteredDomains[indexPath.row])"
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.didSelectItem?(filteredDataList[indexPath.row])
+        let selectedItem = "\(namePart)\(filteredDomains[indexPath.row])"
+        
+        self.filterDomains(for: selectedItem)
+        self.didSelectItem?(selectedItem)
+        hideTableView()
     }
 }

@@ -16,7 +16,7 @@ public class MainCoordinator {
     }
     
     public func start() {
-        let viewController = ViewController2()
+        let viewController = ViewController()
         navigator.pushViewController(viewController, animated: true)
     }
 }

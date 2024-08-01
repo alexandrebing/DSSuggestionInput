@@ -37,4 +37,9 @@ class DSTextInput: UITextField, UITextFieldDelegate {
     func textFieldDidEndEditing(_ textField: UITextField) {
         didEndEditing?()
     }
+    
+    func suggestionSelected(_ text: String) {
+        self.text = text
+        self.resignFirstResponder()
+    }
 }

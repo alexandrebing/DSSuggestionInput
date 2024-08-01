@@ -59,7 +59,7 @@ class ViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            sugestionInput.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 100),
+            sugestionInput.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 200),
             sugestionInput.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             sugestionInput.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             confirmEmailTextField.topAnchor.constraint(equalTo: sugestionInput.bottomAnchor, constant: 20),
